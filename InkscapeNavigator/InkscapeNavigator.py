@@ -12,12 +12,12 @@ layout = [[sg.Text(f"InkscapeNavigator - v{version}", size=(30,1))],
           [sg.Text("Connecting mouse...", size=(30,1), key="mouse")],
           # [sg.Input(key='-INPUT-')],
           # [sg.Text(key='mouse_state')],
-          [sg.Text("To start press 'Start'",size=(30,1), key='mouse_state')],
-          [sg.Text("X:0.0, Y:0.0, Z:0.0",size=(30,1), key='axis')],
-          [sg.Button('Start'), sg.Button('Stop'), sg.Button('Quit'), sg.Text("By kubaandrysek.cz", justification="right")]]
+          [sg.Text("",size=(30,1), key='mouse_state')],
+          # [sg.Text("X:0.0, Y:0.0, Z:0.0",size=(30,1), key='axis')],
+          [sg.Button('Stop', key="button_state"), sg.Button('Quit'), sg.Text("By kubaandrysek.cz", justification="right")]]
 
 window = sg.Window('InkscapeNavigator', layout, )
-app_start = False
+app_start = True
 
 # spacenavigator setup
 key = Controller()
@@ -38,15 +38,18 @@ print("Name: "+success.name)
 while True:
     event, values = window.read(timeout=30)
 
-    if event == "Start":
-        app_start = True
-        window['mouse_state'].update("App started")
-        print("Start")
-
-    if event == "Stop" or state.buttons[1]:
-        app_start = False
-        window['mouse_state'].update("App stopped")
-        print("Stop")
+    stop_key = state.buttons[1]
+    if event == "button_state" or stop_key:
+        if app_start == True:
+            app_start = False
+            window['mouse_state'].update("App stopped")
+            print("Stop")
+            window['button_state'].update("Start") # new button state
+        elif not stop_key:
+            app_start = True
+            window['mouse_state'].update("App started")
+            print("Start")
+            window['button_state'].update("Stop")  # new button state
 
     if event == sg.WINDOW_CLOSED or event == 'Quit':
         break
@@ -56,8 +59,8 @@ while True:
 
         if new.lower().find("inkscape") > 0:
             # if True:
-            window['mouse_state'].update("Running")
-            window['axis'].update("X:%1.1f, Y:%1.1f, Z:%1.1f" % (state.x, state.y, state.z))
+            # window['mouse_state'].update("Running")
+            window['mouse_state'].update("X:%1.1f, Y:%1.1f, Z:%1.1f" % (state.x, state.y, state.z))
 
             state = spacenavigator.read()
             print("X:%1.1f, Y:%1.1f, Z:%1.1f" % (state.x, state.y, state.z))
